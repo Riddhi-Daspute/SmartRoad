@@ -1,0 +1,111 @@
+.recent-inspections {
+  background: white;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  padding: 25px;
+  margin-top: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  color: #102a56;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.section-header p {
+  color: #667085;
+  font-size: 14px;
+}
+
+.view-all-button {
+  padding: 9px 16px;
+  background: #102a56;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.view-all-button:hover {
+  background: #1e5aa8;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 13px;
+  background: #f4f7fb;
+  color: #53657d;
+  font-size: 13px;
+}
+
+td {
+  padding: 14px 13px;
+  border-bottom: 1px solid #e8ecf1;
+  color: #333;
+  font-size: 14px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.severity,
+.status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Severity */
+
+.severity.high {
+  background: #fff0e6;
+  color: #c45b00;
+}
+
+.severity.medium {
+  background: #fff8d9;
+  color: #9a7800;
+}
+
+.severity.critical {
+  background: #ffe5e5;
+  color: #c62828;
+}
+
+/* Status */
+
+.status.pending {
+  background: #fff8d9;
+  color: #9a7800;
+}
+
+.status.assigned {
+  background: #e8f0ff;
+  color: #2456a6;
+}
+
+.status.in-progress {
+  background: #e6f6ef;
+  color: #19734a;
+}

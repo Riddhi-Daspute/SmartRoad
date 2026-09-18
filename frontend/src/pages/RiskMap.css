@@ -1,0 +1,122 @@
+.risk-map-content {
+  padding: 30px;
+}
+
+.risk-map-heading {
+  margin-bottom: 25px;
+}
+
+.risk-map-heading h1 {
+  color: #102a56;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.risk-map-heading p {
+  color: #667085;
+  font-size: 14px;
+}
+
+.risk-map-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 25px;
+}
+
+.map-card,
+.risk-summary-card {
+  background: white;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.map-card h2,
+.risk-summary-card h2 {
+  color: #102a56;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.map-description {
+  color: #667085;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.road-map {
+  width: 100%;
+  height: 500px;
+  border-radius: 8px;
+}
+
+.map-popup h3 {
+  color: #102a56;
+  margin-bottom: 8px;
+}
+
+.map-popup p {
+  margin: 5px 0;
+  font-size: 13px;
+}
+
+.risk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e1e6ed;
+}
+
+.risk-item span:nth-child(2) {
+  flex: 1;
+  color: #344054;
+  font-size: 14px;
+}
+
+.risk-item strong {
+  color: #102a56;
+}
+
+.risk-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.risk-dot.green {
+  background: #2e8b57;
+}
+
+.risk-dot.orange {
+  background: #f28c28;
+}
+
+.risk-dot.red {
+  background: #d62828;
+}
+
+.risk-dot.darkred {
+  background: #8b0000;
+}
+
+.map-info {
+  margin-top: 25px;
+  padding: 15px;
+  background: #f4f7fb;
+  border-radius: 6px;
+}
+
+.map-info strong {
+  display: block;
+  color: #102a56;
+  margin-bottom: 8px;
+}
+
+.map-info p {
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.5;
+}
