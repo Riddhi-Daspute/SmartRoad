@@ -1,144 +1,153 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import "./InspectionHistory.css";
 
 function InspectionHistory() {
   const [search, setSearch] = useState("");
-  const [severityFilter, setSeverityFilter] = useState("All");
+  const [eventFilter, setEventFilter] = useState("All");
+  const [lifecycleData, setLifecycleData] = useState([]);
+  const [error, setError] = useState("");
 
-  const inspections = [
-    {
-      road: "College Road",
-      defect: "Pothole",
-      confidence: "94%",
-      severity: "High",
-      date: "02 Sep 2026",
-      source: "AI Camera",
-      status: "Reviewed",
-    },
-    {
-      road: "MG Road",
-      defect: "Crack",
-      confidence: "87%",
-      severity: "Medium",
-      date: "01 Sep 2026",
-      source: "Manual Upload",
-      status: "Reviewed",
-    },
-    {
-      road: "Station Road",
-      defect: "Waterlogging",
-      confidence: "91%",
-      severity: "High",
-      date: "30 Aug 2026",
-      source: "AI Camera",
-      status: "Pending",
-    },
-    {
-      road: "Main Street",
-      defect: "Pothole",
-      confidence: "96%",
-      severity: "Critical",
-      date: "29 Aug 2026",
-      source: "AI Camera",
-      status: "Reviewed",
-    },
-    {
-      road: "Market Road",
-      defect: "Surface Damage",
-      confidence: "82%",
-      severity: "Low",
-      date: "28 Aug 2026",
-      source: "Manual Upload",
-      status: "Reviewed",
-    },
-    {
-      road: "Nashik Road",
-      defect: "Crack",
-      confidence: "89%",
-      severity: "Medium",
-      date: "27 Aug 2026",
-      source: "AI Camera",
-      status: "Pending",
-    },
-  ];
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/lifecycle/")
+      .then((response) => {
+        setLifecycleData(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError("Unable to load lifecycle history.");
+      });
+  }, []);
 
-  const filteredInspections = inspections.filter((inspection) => {
+  const filteredEvents = lifecycleData.filter((event) => {
+    const searchText = search.toLowerCase();
+
     const matchesSearch =
-      inspection.road.toLowerCase().includes(search.toLowerCase()) ||
-      inspection.defect.toLowerCase().includes(search.toLowerCase());
+      event.road_name.toLowerCase().includes(searchText) ||
+      event.event_type.toLowerCase().includes(searchText) ||
+      event.description.toLowerCase().includes(searchText);
 
-    const matchesSeverity =
-      severityFilter === "All" ||
-      inspection.severity === severityFilter;
+    const matchesEvent =
+      eventFilter === "All" ||
+      event.event_type === eventFilter;
 
-    return matchesSearch && matchesSeverity;
+    return matchesSearch && matchesEvent;
   });
+
+  const formatEventType = (eventType) => {
+    const eventMap = {
+      DEFECT: "Defect Detected",
+      MAINTENANCE: "Maintenance",
+      REPAIR: "Repair",
+      VERIFICATION: "Verification",
+      REINSPECTION: "Re-inspection",
+    };
+
+    return eventMap[eventType] || eventType;
+  };
+
+  const formatDate = (date) => {
+    if (!date) {
+      return "Not available";
+    }
+
+    return new Date(date).toLocaleString();
+  };
 
   return (
     <div className="dashboard">
+
       <Sidebar />
 
       <div className="dashboard-main">
+
         <Navbar />
 
         <main className="history-content">
 
           <div className="history-heading">
-            <h1>Inspection History</h1>
+            <h1>Road Lifecycle History</h1>
+
             <p>
-              View previous AI and manual road inspections.
+              Track defects, maintenance, repairs and verification events
+              throughout the road lifecycle.
             </p>
           </div>
+
+          {error && <p>{error}</p>}
 
           {/* Filters */}
           <div className="history-filter-card">
 
             <div className="search-box">
-              <label>Search Inspection</label>
+              <label>Search Lifecycle Event</label>
 
               <input
                 type="text"
-                placeholder="Search by road or defect..."
+                placeholder="Search by road, event or description..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
             </div>
 
             <div className="history-filter">
-              <label>Severity</label>
+              <label>Event Type</label>
 
               <select
-                value={severityFilter}
+                value={eventFilter}
                 onChange={(event) =>
-                  setSeverityFilter(event.target.value)
+                  setEventFilter(event.target.value)
                 }
               >
-                <option value="All">All Severity</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
+                <option value="All">
+                  All Events
+                </option>
+
+                <option value="DEFECT">
+                  Defect Detected
+                </option>
+
+                <option value="MAINTENANCE">
+                  Maintenance
+                </option>
+
+                <option value="REPAIR">
+                  Repair
+                </option>
+
+                <option value="VERIFICATION">
+                  Verification
+                </option>
+
+                <option value="REINSPECTION">
+                  Re-inspection
+                </option>
               </select>
             </div>
 
           </div>
 
-          {/* History Table */}
+          {/* Lifecycle Table */}
           <div className="history-table-card">
 
             <div className="history-table-header">
+
               <div>
-                <h2>Inspection Records</h2>
+                <h2>Lifecycle Events</h2>
+
                 <p>
-                  Complete record of road condition inspections.
+                  Complete history of road condition and maintenance events.
                 </p>
               </div>
 
               <span className="record-count">
-                {filteredInspections.length} Records
+                {filteredEvents.length} Records
               </span>
+
             </div>
 
             <div className="history-table-container">
@@ -148,57 +157,69 @@ function InspectionHistory() {
                 <thead>
                   <tr>
                     <th>Road</th>
-                    <th>Defect</th>
-                    <th>Confidence</th>
-                    <th>Severity</th>
+                    <th>Event</th>
+                    <th>Description</th>
                     <th>Date</th>
-                    <th>Source</th>
-                    <th>Status</th>
+                    <th>Performed By</th>
+                    <th>Reference</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {filteredInspections.map((inspection, index) => (
-                    <tr key={index}>
 
-                      <td>{inspection.road}</td>
+                  {filteredEvents.map((event) => (
 
-                      <td>{inspection.defect}</td>
+                    <tr key={event.id}>
 
-                      <td className="confidence">
-                        {inspection.confidence}
+                      <td>
+                        {event.road_name}
                       </td>
 
                       <td>
                         <span
-                          className={`history-severity ${inspection.severity.toLowerCase()}`}
+                          className={`history-status ${event.event_type
+                            .toLowerCase()
+                            .replace("_", "-")}`}
                         >
-                          {inspection.severity}
+                          {formatEventType(event.event_type)}
                         </span>
                       </td>
 
-                      <td>{inspection.date}</td>
-
-                      <td>{inspection.source}</td>
+                      <td>
+                        {event.description}
+                      </td>
 
                       <td>
-                        <span
-                          className={`history-status ${inspection.status.toLowerCase()}`}
-                        >
-                          {inspection.status}
-                        </span>
+                        {formatDate(event.event_date)}
+                      </td>
+
+                      <td>
+                        {event.performed_by}
+                      </td>
+
+                      <td>
+                        {event.reference_id || "N/A"}
                       </td>
 
                     </tr>
+
                   ))}
 
-                  {filteredInspections.length === 0 && (
+                  {filteredEvents.length === 0 && (
+
                     <tr>
-                      <td colSpan="7" className="no-history">
-                        No inspection records found.
+
+                      <td
+                        colSpan="6"
+                        className="no-history"
+                      >
+                        No lifecycle events found.
                       </td>
+
                     </tr>
+
                   )}
+
                 </tbody>
 
               </table>
@@ -208,7 +229,9 @@ function InspectionHistory() {
           </div>
 
         </main>
+
       </div>
+
     </div>
   );
 }

@@ -8,6 +8,7 @@ import RoadHealth from "./pages/RoadHealth";
 import RiskMap from "./pages/RiskMap";
 import Maintenance from "./pages/Maintenance";
 import InspectionHistory from "./pages/InspectionHistory";
+import ContractorAccountability from "./pages/ContractorAccountability";
 
 function App() {
     return (
@@ -32,6 +33,8 @@ function App() {
         <Route path="/maintenance" element={<Maintenance />} />
 
         <Route path="/history" element={<InspectionHistory />} />
+
+        <Route path="/contractors" element={<ContractorAccountability />} />
 
       </Routes>
 

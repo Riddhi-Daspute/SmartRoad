@@ -36,6 +36,10 @@ function Sidebar() {
           Inspection History
         </Link>
 
+        <Link to="/contractors" className="menu-item">
+          Contractor Accountability
+        </Link>
+
       </nav>
 
     </aside>
