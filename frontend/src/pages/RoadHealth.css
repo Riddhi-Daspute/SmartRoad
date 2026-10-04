@@ -1,0 +1,175 @@
+.road-health-content {
+  padding: 30px;
+}
+
+.road-health-heading {
+  margin-bottom: 25px;
+}
+
+.road-health-heading h1 {
+  color: #102a56;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.road-health-heading p {
+  color: #667085;
+  font-size: 14px;
+}
+
+/* Summary Cards */
+
+.health-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.health-card {
+  background: white;
+  padding: 22px;
+  border-radius: 10px;
+  border: 1px solid #e1e6ed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.health-card span {
+  display: block;
+  color: #667085;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.health-card strong {
+  font-size: 30px;
+  color: #102a56;
+}
+
+.good-card {
+  border-left: 5px solid #2e8b57;
+}
+
+.moderate-card {
+  border-left: 5px solid #f2b705;
+}
+
+.poor-card {
+  border-left: 5px solid #f28c28;
+}
+
+.critical-card {
+  border-left: 5px solid #d62828;
+}
+
+/* Table */
+
+.road-health-table-card {
+  background: white;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-heading {
+  margin-bottom: 20px;
+}
+
+.table-heading h2 {
+  color: #102a56;
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.table-heading p {
+  color: #667085;
+  font-size: 14px;
+}
+
+.health-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.health-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.health-table th {
+  text-align: left;
+  background: #f8fafc;
+  color: #475467;
+  font-size: 13px;
+  padding: 14px;
+  border-bottom: 1px solid #e1e6ed;
+}
+
+.health-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #e1e6ed;
+  color: #344054;
+  font-size: 13px;
+}
+
+.health-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Health Score */
+
+.score-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 130px;
+}
+
+.score-bar {
+  width: 80px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: #2e8b57;
+  border-radius: 10px;
+}
+
+.score-container span {
+  font-weight: bold;
+  color: #102a56;
+}
+
+/* Condition */
+
+.condition-badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.condition-badge.good {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.condition-badge.moderate {
+  background: #fff8df;
+  color: #9a7500;
+}
+
+.condition-badge.poor {
+  background: #fff0e5;
+  color: #c45b00;
+}
+
+.condition-badge.critical {
+  background: #fde8e8;
+  color: #c62828;
+}

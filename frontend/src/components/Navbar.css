@@ -1,0 +1,38 @@
+.navbar {
+  height: 70px;
+  background: white;
+  border-bottom: 1px solid #e1e6ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+}
+
+.navbar h2 {
+  color: #102a56;
+  font-size: 22px;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar-user span {
+  color: #555;
+  font-weight: bold;
+}
+
+.navbar-user button {
+  background: #102a56;
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.navbar-user button:hover {
+  background: #1e5aa8;
+}

@@ -1,0 +1,40 @@
+.dashboard {
+  min-height: 100vh;
+  background: #f4f7fb;
+}
+
+.dashboard-main {
+  margin-left: 240px;
+}
+
+.dashboard-content {
+  padding: 30px;
+}
+
+.welcome-section {
+  margin-bottom: 30px;
+}
+
+.welcome-section h1 {
+  color: #102a56;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.welcome-section p {
+  color: #667085;
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.dashboard-charts {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
