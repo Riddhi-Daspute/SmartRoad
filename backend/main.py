@@ -10,9 +10,9 @@ import cv2
 
 app = FastAPI(title="SmartRoad AI API")
 
-# -----------------------------
+
 # Model
-# -----------------------------
+
 MODEL_PATH = r"C:\SmartRoad\AI\runs\detect\train\weights\best.pt"
 
 model = YOLO(MODEL_PATH)
