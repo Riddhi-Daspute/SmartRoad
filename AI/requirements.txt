@@ -1,0 +1,13 @@
+ultralytics==8.4.163
+torch==2.14.0
+torchvision
+fastapi
+uvicorn
+python-multipart
+opencv-python
+numpy
+pandas
+matplotlib
+scikit-learn
+pillow
+requests
