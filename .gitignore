@@ -20,6 +20,8 @@ backend/.venv/
 AI/runs/
 AI/dataset/
 AI/models/
+# Generated AI detection results
+AI/results/
 RDD2022/
 Waterlogging/
 

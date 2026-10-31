@@ -1,8 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-
-from .views import RoadHealthViewSet
-
+from .views import RoadHealthViewSet, save_ai_inspection
 
 router = DefaultRouter()
 
@@ -12,4 +10,7 @@ router.register(
     basename="road-health"
 )
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("inspections/save/", save_ai_inspection, name="save-ai-inspection"),
+] + router.urls
+

@@ -174,3 +174,44 @@
   font-size: 13px;
   font-weight: bold;
 }
+
+.camera-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.camera-preview {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #111;
+}
+
+.camera-preview video {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+}
+
+.secondary-button {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font: inherit;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #f3f4f6;
+}
+
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

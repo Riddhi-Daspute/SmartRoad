@@ -57,3 +57,47 @@ class RoadHealth(models.Model):
 
     def __str__(self):
         return f"{self.road_id} - {self.road_name}"
+
+
+class AIInspection(models.Model):
+
+    inspection_id = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    road_id = models.CharField(
+        max_length=50
+    )
+
+    road_name = models.CharField(
+        max_length=200
+    )
+
+    image_filename = models.CharField(
+        max_length=255
+    )
+
+    annotated_image_url = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
+    total_detections = models.PositiveIntegerField(
+        default=0
+    )
+
+    detections = models.JSONField(
+        default=list
+    )
+
+    health_score = models.PositiveIntegerField(
+        default=100
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.inspection_id} - {self.road_name}"
