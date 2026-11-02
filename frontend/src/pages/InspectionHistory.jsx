@@ -1,54 +1,65 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import "./InspectionHistory.css";
 
+const API_URL =
+  "http://127.0.0.1:8000/api/road-health/inspections/";
+
 function InspectionHistory() {
+  const [inspections, setInspections] = useState([]);
+  const [selectedInspection, setSelectedInspection] = useState(null);
   const [search, setSearch] = useState("");
-  const [eventFilter, setEventFilter] = useState("All");
-  const [lifecycleData, setLifecycleData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/lifecycle/")
-      .then((response) => {
-        setLifecycleData(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-        setError("Unable to load lifecycle history.");
-      });
-  }, []);
+    const loadInspectionHistory = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-  const filteredEvents = lifecycleData.filter((event) => {
-    const searchText = search.toLowerCase();
+        const response = await fetch(API_URL);
 
-    const matchesSearch =
-      event.road_name.toLowerCase().includes(searchText) ||
-      event.event_type.toLowerCase().includes(searchText) ||
-      event.description.toLowerCase().includes(searchText);
+        if (!response.ok) {
+          throw new Error("Unable to load AI inspection history.");
+        }
 
-    const matchesEvent =
-      eventFilter === "All" ||
-      event.event_type === eventFilter;
+        const data = await response.json();
 
-    return matchesSearch && matchesEvent;
-  });
-
-  const formatEventType = (eventType) => {
-    const eventMap = {
-      DEFECT: "Defect Detected",
-      MAINTENANCE: "Maintenance",
-      REPAIR: "Repair",
-      VERIFICATION: "Verification",
-      REINSPECTION: "Re-inspection",
+        setInspections(data);
+        setSelectedInspection(data[0] || null);
+      } catch (err) {
+        console.error("Inspection history error:", err);
+        setError(
+          "Unable to load inspection history. Check that Django is running."
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return eventMap[eventType] || eventType;
-  };
+    loadInspectionHistory();
+  }, []);
+
+  const filteredInspections = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    if (!searchText) {
+      return inspections;
+    }
+
+    return inspections.filter((inspection) =>
+      [
+        inspection.inspection_id,
+        inspection.road_id,
+        inspection.road_name,
+      ]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(searchText))
+    );
+  }, [inspections, search]);
 
   const formatDate = (date) => {
     if (!date) {
@@ -58,180 +69,233 @@ function InspectionHistory() {
     return new Date(date).toLocaleString();
   };
 
+  const getHealthClass = (score) => {
+    if (score >= 80) return "good";
+    if (score >= 50) return "moderate";
+    return "poor";
+  };
+
+  const getImageUrl = (url) => {
+    if (!url) {
+      return "";
+    }
+
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+
+    return `http://127.0.0.1:8001${url.startsWith("/") ? url : `/${url}`}`;
+  };
+
   return (
     <div className="dashboard">
-
       <Sidebar />
 
       <div className="dashboard-main">
-
         <Navbar />
 
         <main className="history-content">
-
           <div className="history-heading">
-            <h1>Road Lifecycle History</h1>
-
+            <h1>AI Inspection History</h1>
             <p>
-              Track defects, maintenance, repairs and verification events
-              throughout the road lifecycle.
+              Review saved AI road inspections, detected defects, and health
+              scores.
             </p>
           </div>
 
-          {error && <p>{error}</p>}
-
-          {/* Filters */}
           <div className="history-filter-card">
-
             <div className="search-box">
-              <label>Search Lifecycle Event</label>
+              <label htmlFor="inspection-search">
+                Search inspections
+              </label>
 
               <input
-                type="text"
-                placeholder="Search by road, event or description..."
+                id="inspection-search"
+                type="search"
+                placeholder="Search by inspection ID, road ID or road name..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
             </div>
 
-            <div className="history-filter">
-              <label>Event Type</label>
-
-              <select
-                value={eventFilter}
-                onChange={(event) =>
-                  setEventFilter(event.target.value)
-                }
-              >
-                <option value="All">
-                  All Events
-                </option>
-
-                <option value="DEFECT">
-                  Defect Detected
-                </option>
-
-                <option value="MAINTENANCE">
-                  Maintenance
-                </option>
-
-                <option value="REPAIR">
-                  Repair
-                </option>
-
-                <option value="VERIFICATION">
-                  Verification
-                </option>
-
-                <option value="REINSPECTION">
-                  Re-inspection
-                </option>
-              </select>
-            </div>
-
+            <span className="record-count">
+              {filteredInspections.length} Inspection
+              {filteredInspections.length === 1 ? "" : "s"}
+            </span>
           </div>
 
-          {/* Lifecycle Table */}
-          <div className="history-table-card">
-
-            <div className="history-table-header">
-
-              <div>
-                <h2>Lifecycle Events</h2>
-
-                <p>
-                  Complete history of road condition and maintenance events.
-                </p>
-              </div>
-
-              <span className="record-count">
-                {filteredEvents.length} Records
-              </span>
-
+          {loading && (
+            <div className="history-state">
+              Loading AI inspection history...
             </div>
+          )}
 
-            <div className="history-table-container">
+          {!loading && error && (
+            <div className="history-state history-error">
+              {error}
+            </div>
+          )}
 
-              <table className="history-table">
+          {!loading && !error && inspections.length === 0 && (
+            <div className="history-state">
+              <h2>No saved inspections yet</h2>
+              <p>
+                Complete an AI inspection and select “Save Inspection” to see
+                it here.
+              </p>
+            </div>
+          )}
 
-                <thead>
-                  <tr>
-                    <th>Road</th>
-                    <th>Event</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th>Performed By</th>
-                    <th>Reference</th>
-                  </tr>
-                </thead>
+          {!loading && !error && inspections.length > 0 && (
+            <div className="inspection-history-grid">
+              <section className="history-table-card">
+                <div className="history-table-header">
+                  <div>
+                    <h2>Saved Inspections</h2>
+                    <p>Select an inspection to see its detections.</p>
+                  </div>
+                </div>
 
-                <tbody>
+                {filteredInspections.length === 0 ? (
+                  <p className="no-history">
+                    No inspections match your search.
+                  </p>
+                ) : (
+                  <div className="history-table-container">
+                    <table className="history-table">
+                      <thead>
+                        <tr>
+                          <th>Inspection</th>
+                          <th>Road</th>
+                          <th>Detections</th>
+                          <th>Health</th>
+                          <th>Saved</th>
+                        </tr>
+                      </thead>
 
-                  {filteredEvents.map((event) => (
+                      <tbody>
+                        {filteredInspections.map((inspection) => (
+                          <tr
+                            key={inspection.id}
+                            className={
+                              selectedInspection?.id === inspection.id
+                                ? "selected-history-row"
+                                : ""
+                            }
+                            onClick={() =>
+                              setSelectedInspection(inspection)
+                            }
+                          >
+                            <td>{inspection.inspection_id}</td>
+                            <td>
+                              <strong>{inspection.road_name}</strong>
+                              <span className="road-id">
+                                {inspection.road_id}
+                              </span>
+                            </td>
+                            <td>{inspection.total_detections}</td>
+                            <td>
+                              <span
+                                className={`health-score ${getHealthClass(
+                                  inspection.health_score
+                                )}`}
+                              >
+                                {inspection.health_score}/100
+                              </span>
+                            </td>
+                            <td>{formatDate(inspection.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
 
-                    <tr key={event.id}>
+              {selectedInspection && (
+                <aside className="inspection-detail-card">
+                  <h2>Inspection Details</h2>
 
-                      <td>
-                        {event.road_name}
-                      </td>
+                  <div className="detail-row">
+                    <span>Inspection ID</span>
+                    <strong>{selectedInspection.inspection_id}</strong>
+                  </div>
 
-                      <td>
-                        <span
-                          className={`history-status ${event.event_type
-                            .toLowerCase()
-                            .replace("_", "-")}`}
-                        >
-                          {formatEventType(event.event_type)}
-                        </span>
-                      </td>
+                  <div className="detail-row">
+                    <span>Road</span>
+                    <strong>
+                      {selectedInspection.road_name} (
+                      {selectedInspection.road_id})
+                    </strong>
+                  </div>
 
-                      <td>
-                        {event.description}
-                      </td>
+                  <div className="detail-row">
+                    <span>Image</span>
+                    <strong>
+                      {selectedInspection.image_filename || "Not available"}
+                    </strong>
+                  </div>
 
-                      <td>
-                        {formatDate(event.event_date)}
-                      </td>
+                  <div className="detail-row">
+                    <span>Detections</span>
+                    <strong>{selectedInspection.total_detections}</strong>
+                  </div>
 
-                      <td>
-                        {event.performed_by}
-                      </td>
+                  <div className="detail-row">
+                    <span>Health score</span>
+                    <strong>{selectedInspection.health_score}/100</strong>
+                  </div>
 
-                      <td>
-                        {event.reference_id || "N/A"}
-                      </td>
+                  <div className="detail-row">
+                    <span>Saved</span>
+                    <strong>
+                      {formatDate(selectedInspection.created_at)}
+                    </strong>
+                  </div>
 
-                    </tr>
+                  <h3>Detected Defects</h3>
 
-                  ))}
-
-                  {filteredEvents.length === 0 && (
-
-                    <tr>
-
-                      <td
-                        colSpan="6"
-                        className="no-history"
-                      >
-                        No lifecycle events found.
-                      </td>
-
-                    </tr>
-
+                  {selectedInspection.detections?.length ? (
+                    <ul className="detection-list">
+                      {selectedInspection.detections.map(
+                        (detection, index) => (
+                          <li key={index}>
+                            <strong>
+                              {detection.damage_type || "Unknown defect"}
+                            </strong>
+                            {typeof detection.confidence === "number" && (
+                              <span>
+                                {(detection.confidence * 100).toFixed(1)}%
+                                confidence
+                              </span>
+                            )}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  ) : (
+                    <p className="no-detections">
+                      No defects were detected for this inspection.
+                    </p>
                   )}
 
-                </tbody>
-
-              </table>
-
+                  {getImageUrl(selectedInspection.annotated_image_url) && (
+                    <div className="annotated-history-image">
+                      <h3>Annotated Image</h3>
+                      <img
+                        src={getImageUrl(
+                          selectedInspection.annotated_image_url
+                        )}
+                        alt={`Annotated inspection for ${selectedInspection.road_name}`}
+                      />
+                    </div>
+                  )}
+                </aside>
+              )}
             </div>
-
-          </div>
-
+          )}
         </main>
-
       </div>
-
     </div>
   );
 }

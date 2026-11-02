@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import RoadHealth
+from .models import AIInspection
 from .decision_support import (
     calculate_road_health,
     determine_risk_level,
@@ -50,3 +51,21 @@ class RoadHealthSerializer(serializers.ModelSerializer):
     def get_recommended_action(self, obj):
 
         return get_recommended_action(obj.health_score)
+
+class AIInspectionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AIInspection
+        fields = [
+            "id",
+            "inspection_id",
+            "road_id",
+            "road_name",
+            "image_filename",
+            "annotated_image_url",
+            "total_detections",
+            "detections",
+            "health_score",
+            "created_at",
+        ]
+        read_only_fields = fields

@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import RoadHealth
-from .serializers import RoadHealthSerializer
+from .serializers import RoadHealthSerializer, AIInspectionSerializer
 from .analytics import get_dashboard_summary
 from django.db import transaction
 from django.utils import timezone
@@ -125,3 +125,11 @@ def save_ai_inspection(request):
         },
         status=status.HTTP_201_CREATED
     )
+
+@api_view(["GET"])
+def ai_inspection_history(request):
+    inspections = AIInspection.objects.all().order_by("-created_at")
+
+    serializer = AIInspectionSerializer(inspections, many=True)
+
+    return Response(serializer.data)
