@@ -1,10 +1,12 @@
 from django.test import TestCase
-from .models import AIInspection
+from .models import AIInspection, RoadHealth
 
 from .decision_support import (
+    calculate_inspection_health,
     calculate_road_health,
     determine_risk_level,
     determine_maintenance_priority,
+    filter_reliable_detections,
 )
 
 
@@ -101,3 +103,57 @@ class AIInspectionHistoryTest(TestCase):
             response.data[1]["inspection_id"],
             older.inspection_id,
         )
+
+
+class AIInspectionAssessmentTest(TestCase):
+
+    def test_filters_low_confidence_predictions(self):
+        accepted, ignored = filter_reliable_detections([
+            {"damage_type": "pothole", "confidence": 0.90},
+            {"damage_type": "crack", "confidence": 0.49},
+        ])
+
+        self.assertEqual(len(accepted), 1)
+        self.assertEqual(len(ignored), 1)
+
+    def test_weighted_inspection_health_score(self):
+        score = calculate_inspection_health([
+            {"damage_type": "pothole", "confidence": 0.90},
+            {"damage_type": "waterlogging", "confidence": 0.80},
+            {"damage_type": "crack", "confidence": 0.70},
+        ])
+
+        self.assertEqual(score, 35)
+
+    def test_save_inspection_uses_reliable_weighted_detections(self):
+        RoadHealth.objects.create(
+            road_id="ROAD-003",
+            road_name="Assessment Road",
+        )
+
+        response = self.client.post(
+            "/api/road-health/inspections/save/",
+            {
+                "road_id": "ROAD-003",
+                "image_filename": "assessment.jpg",
+                "detections": [
+                    {"damage_type": "pothole", "confidence": 0.90},
+                    {"damage_type": "crack", "confidence": 0.40},
+                    {"damage_type": "waterlogging", "confidence": 0.80},
+                ],
+            },
+            content_type="application/json",
+        )
+
+        inspection = AIInspection.objects.get(
+            inspection_id=response.data["inspection_id"]
+        )
+        road = RoadHealth.objects.get(road_id="ROAD-003")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["total_detections"], 2)
+        self.assertEqual(response.data["ignored_detections"], 1)
+        self.assertEqual(response.data["health_score"], 45)
+        self.assertEqual(inspection.total_detections, 2)
+        self.assertEqual(len(inspection.detections), 2)
+        self.assertEqual(road.health_score, 45)

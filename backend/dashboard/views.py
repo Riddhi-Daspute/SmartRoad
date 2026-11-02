@@ -12,9 +12,11 @@ from rest_framework import status
 
 from .models import RoadHealth, AIInspection
 from .decision_support import (
+    calculate_inspection_health,
     calculate_road_health,
     determine_risk_level,
     determine_maintenance_priority,
+    filter_reliable_detections,
 )
 from lifecycle.models import LifecycleEvent
 
@@ -70,9 +72,12 @@ def save_ai_inspection(request):
     try:
         with transaction.atomic():
 
-            total_detections = len(detections)
+            accepted_detections, ignored_detections = (
+                filter_reliable_detections(detections)
+            )
+            total_detections = len(accepted_detections)
 
-            score = calculate_road_health(total_detections)
+            score = calculate_inspection_health(accepted_detections)
 
             inspection = AIInspection.objects.create(
                 inspection_id=inspection_id,
@@ -81,7 +86,7 @@ def save_ai_inspection(request):
                 image_filename=image_filename,
                 annotated_image_url=annotated_image_url,
                 total_detections=total_detections,
-                detections=detections,
+                detections=accepted_detections,
                 health_score=score,
             )
 
@@ -99,7 +104,9 @@ def save_ai_inspection(request):
                 event_type="INSPECTION",
                 description=(
                     f"AI inspection {inspection_id} completed. "
-                    f"{total_detections} detections recorded. "
+                    f"{total_detections} reliable detections recorded "
+                    f"({len(ignored_detections)} low-confidence "
+                    f"detections ignored). "
                     f"Road health score: {score}/100."
                 ),
                 event_date=timezone.now(),
@@ -119,6 +126,7 @@ def save_ai_inspection(request):
             "inspection_id": inspection.inspection_id,
             "road_id": road.road_id,
             "total_detections": inspection.total_detections,
+            "ignored_detections": len(ignored_detections),
             "health_score": road.health_score,
             "risk_level": road.risk_level,
             "maintenance_priority": road.maintenance_priority,

@@ -4,6 +4,8 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import "./AIInspection.css";
 
+const CONFIDENCE_THRESHOLD = 0.5;
+
 function AIInspection() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -292,7 +294,8 @@ const startCamera = async () => {
 
       setSaveMessage(
         `Inspection ${data.inspection_id} saved successfully. ` +
-        `Road health: ${data.health_score}/100.`
+        `Road health: ${data.health_score}/100. ` +
+        `${data.ignored_detections} low-confidence detection(s) ignored.`
       );
     } catch (err) {
       console.error("Inspection save error:", err);
@@ -310,6 +313,18 @@ const startCamera = async () => {
     setResult(null);
     setError("");
   };
+
+  const acceptedDetections = result?.detections?.filter(
+    (detection) =>
+      typeof detection.confidence === "number" &&
+      detection.confidence >= CONFIDENCE_THRESHOLD
+  ) || [];
+
+  const ignoredDetections = result?.detections?.filter(
+    (detection) =>
+      typeof detection.confidence !== "number" ||
+      detection.confidence < CONFIDENCE_THRESHOLD
+  ) || [];
 
   return (
     <div className="dashboard">
@@ -481,28 +496,34 @@ const startCamera = async () => {
               {result && (
                 <div className="result-box">
                   <div className="result-item">
-                    <span>Total Detections</span>
-                    <strong>{result.total_detections}</strong>
+                    <span>AI Detections</span>
+                    <strong>{result.detections?.length || 0}</strong>
                   </div>
 
-                  {result.detections?.map((detection, index) => (
-                    <div className="result-item" key={index}>
-                      <span>Defect {index + 1}</span>
-                      <strong>{detection.damage_type}</strong>
-                    </div>
-                  ))}
+                  <div className="assessment-summary">
+                    <strong>
+                      {acceptedDetections.length} accepted for assessment
+                    </strong>
+                    <span>
+                      Confidence threshold: {CONFIDENCE_THRESHOLD * 100}%
+                    </span>
+                  </div>
 
-                  {result.detections?.map((detection, index) => (
-                    <div
-                      className="result-item"
-                      key={`confidence-${index}`}
-                    >
-                      <span>Confidence {index + 1}</span>
+                  {acceptedDetections.map((detection, index) => (
+                    <div className="result-item" key={index}>
+                      <span>Accepted defect {index + 1}</span>
                       <strong>
-                        {(detection.confidence * 100).toFixed(2)}%
+                        {detection.damage_type} ({(detection.confidence * 100).toFixed(2)}%)
                       </strong>
                     </div>
                   ))}
+
+                  {ignoredDetections.length > 0 && (
+                    <div className="ignored-detection">
+                      {ignoredDetections.length} low-confidence detection(s)
+                      will not affect the road health score.
+                    </div>
+                  )}
 
                   <div className="result-status">
                     AI analysis completed successfully

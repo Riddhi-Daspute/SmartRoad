@@ -175,6 +175,33 @@
   font-weight: bold;
 }
 
+.assessment-summary {
+  margin-top: 16px;
+  padding: 12px;
+  background: #e8f0fe;
+  border-radius: 6px;
+  color: #1e5aa8;
+}
+
+.assessment-summary strong,
+.assessment-summary span {
+  display: block;
+}
+
+.assessment-summary span {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.ignored-detection {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff8df;
+  border-radius: 6px;
+  color: #9a7500;
+  font-size: 13px;
+}
+
 .camera-controls {
   display: flex;
   flex-direction: column;
